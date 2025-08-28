@@ -1,0 +1,34 @@
+workflows:
+  unsigned-swift-build:
+    name: Unsigned Swift Build
+    environment:
+      xcode: 15.4
+    scripts:
+      - name: Resolve SPM & Pods
+        script: |
+          # 如果用 CocoaPods
+          [ -f Podfile ] && pod install --repo-update
+          # 拉取 SPM 依赖
+          xcodebuild -resolvePackageDependencies -project Your-Live-Wallpaper.xcodeproj -scheme Your-Live-Wallpaper
+      - name: Build .app (Release, 无签名)
+        script: |
+          xcodebuild archive \
+                -project Your-Live-Wallpaper.xcodeproj \
+                -scheme Your-Live-Wallpaper \
+                -configuration Release \
+                -archivePath "$PWD/build/Your-Live-Wallpaper.xcarchive" \
+                CODE_SIGNING_ALLOWED=NO \
+                CODE_SIGNING_REQUIRED=NO \
+                CODE_SIGN_IDENTITY="" \
+                PROVISIONING_PROFILE_SPECIFIER=""
+      - name: Export .app 并打包
+        script: |
+          # Archive 产物路径
+          APP_PATH="$(find "$PWD/build" -name 'Your-Live-Wallpaper.app' -type d)"
+          [ -z "$APP_PATH" ] && APP_PATH="$(find ~/Library/Developer/Xcode/DerivedData -name 'Your-Live-Wallpaper.app' -type d | head -n1)"
+          mkdir -p build/ios
+          cp -R "$APP_PATH" build/ios/
+          cd build/ios
+          zip -r Your-Live-Wallpaper.app.zip Your-Live-Wallpaper.app
+    artifacts:
+      - build/ios/Your-Live-Wallpaper.app.zip
