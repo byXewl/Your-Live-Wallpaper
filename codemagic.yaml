@@ -6,29 +6,39 @@ workflows:
     scripts:
       - name: Resolve SPM & Pods
         script: |
-          # 如果用 CocoaPods
+          set -e
+          PROJECT_NAME="Your Ai Wallpaper"
           [ -f Podfile ] && pod install --repo-update
-          # 拉取 SPM 依赖
-          xcodebuild -resolvePackageDependencies -project Your Ai Wallpaper.xcodeproj -scheme Your Ai Wallpaper
+          xcodebuild -resolvePackageDependencies \
+                     -project "${PROJECT_NAME}.xcodeproj" \
+                     -scheme "${PROJECT_NAME}"
+
       - name: Build .app (Release, 无签名)
         script: |
+          set -e
+          PROJECT_NAME="Your Ai Wallpaper"
+          ARCHIVE_PATH="${PWD}/build/${PROJECT_NAME}.xcarchive"
           xcodebuild archive \
-                -project Your Ai Wallpaper.xcodeproj \
-                -scheme Your Ai Wallpaper \
+                -project "${PROJECT_NAME}.xcodeproj" \
+                -scheme "${PROJECT_NAME}" \
                 -configuration Release \
-                -archivePath "$PWD/build/Your Ai Wallpaper.xcarchive" \
+                -archivePath "${ARCHIVE_PATH}" \
                 CODE_SIGNING_ALLOWED=NO \
                 CODE_SIGNING_REQUIRED=NO \
                 CODE_SIGN_IDENTITY="" \
                 PROVISIONING_PROFILE_SPECIFIER=""
+
       - name: Export .app 并打包
         script: |
-          # Archive 产物路径
-          APP_PATH="$(find "$PWD/build" -name 'Your Ai Wallpaper.app' -type d)"
-          [ -z "$APP_PATH" ] && APP_PATH="$(find ~/Library/Developer/Xcode/DerivedData -name 'Your Ai Wallpaper.app' -type d | head -n1)"
+          set -e
+          PROJECT_NAME="Your Ai Wallpaper"
+          APP_PATH=$(find "${PWD}/build" -name "${PROJECT_NAME}.app" -type d | head -n1)
+          if [[ -z "$APP_PATH" ]]; then
+            APP_PATH=$(find ~/Library/Developer/Xcode/DerivedData -name "${PROJECT_NAME}.app" -type d | head -n1)
+          fi
           mkdir -p build/ios
-          cp -R "$APP_PATH" build/ios/
+          cp -R "${APP_PATH}" build/ios/
           cd build/ios
-          zip -r Your Ai Wallpaper.app.zip Your Ai Wallpaper.app
+          zip -r "${PROJECT_NAME}.app.zip" "${PROJECT_NAME}.app"
     artifacts:
       - build/ios/Your Ai Wallpaper.app.zip
