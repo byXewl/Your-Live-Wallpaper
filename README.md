@@ -1,3 +1,16 @@
+我没有下面的key，最终编译失败远程打包失败
+```
+enum Secrets {
+    static func getApiKey() -> String {
+        return "YOUR_OPENAI_KEY"   // ← 替换为你的真实 key
+    }
+
+    static func getRunwayApiKey() -> String {
+        return "YOUR_RUNWAY_KEY"   // ← 替换为你的真实 key
+    }
+}
+```
+
 # AI Wallpaper App
 **In my local git repo, I have normal commit system, but I am too lazy to .gitignore and remove from history all the sensitive files, so from time to time I just paste the project here. Also, if you could not tell, the Readme is Ai generated 😉**
 
