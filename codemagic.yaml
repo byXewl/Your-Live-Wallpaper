@@ -2,7 +2,7 @@ workflows:
   unsigned-swift-build:
     name: Unsigned Swift Build
     environment:
-      xcode: 15.4
+      xcode: 15.5
     scripts:
       - name: Resolve SPM & Pods
         script: |
